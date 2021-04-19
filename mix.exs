@@ -39,7 +39,8 @@ defmodule Multipart.MixProject do
 
   defp deps do
     [
-      {:mime, "~> 1.2"}
+      {:mime, "~> 1.2"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end

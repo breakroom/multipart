@@ -1,4 +1,7 @@
 defmodule Multipart.Part do
+  @moduledoc """
+  Represents an individual part of a `Multipart` message.
+  """
   defstruct headers: [], body: nil, content_length: nil
 
   @type body :: binary() | Enum.t()
@@ -63,7 +66,7 @@ defmodule Multipart.Part do
 
   Takes the following `Keyword` options in `opts`:
 
-  * `filename`: controls the inclusion of the filename="foo" directive in the
+  * `filename`: controls the inclusion of the `filename="foo"` directive in the
     `content-disposition` header. Defaults to `true`, which uses the filename
     from the path on disk. Pass in a `String` to override this, or set to
     `false` to disable this directive.

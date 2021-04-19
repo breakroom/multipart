@@ -1,0 +1,13 @@
+
+--==testboundary==
+
+first body
+--==testboundary==
+content-type: text/plain
+
+second body
+
+--==testboundary==
+
+third body
+--==testboundary==--

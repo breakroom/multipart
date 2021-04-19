@@ -1,0 +1,17 @@
+
+--==testboundary==
+content-type: application/json
+content-disposition: form-data; name="attachment"; filename="test.json"
+
+{ "foo": "bar" }
+--==testboundary==
+content-type: text/plain
+content-disposition: form-data; name="attachment_2"; filename="attachment.txt"
+
+Hello, this is a test.
+--==testboundary==
+content-type: application/octet-stream
+content-disposition: form-data; name="attachment_3"
+
+Hello, this is a test.
+--==testboundary==--

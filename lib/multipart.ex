@@ -149,11 +149,7 @@ defmodule Multipart do
     body
   end
 
-  defp part_body_stream(%Part{body: body}) when is_struct(body, Stream) do
-    body
-  end
-
-  defp part_body_stream(%Part{body: body}) when is_struct(body, File.Stream) do
+  defp part_body_stream(%Part{body: %type{} = body}) when type in [Stream, File.Stream] do
     body
   end
 

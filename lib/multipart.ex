@@ -130,7 +130,7 @@ defmodule Multipart do
   end
 
   defp final_delimiter(boundary) do
-    [@crlf, @separator, boundary, @separator]
+    [@crlf, @separator, boundary, @separator, @crlf]
   end
 
   defp part_headers(%Part{headers: headers}) do

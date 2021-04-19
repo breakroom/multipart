@@ -44,7 +44,7 @@ content_type = Multipart.content_type(multipart, "multipart/mixed")
 
 headers = [{"Content-Type", content_type}, {"Content-Length", content_length}]
 
-Finch.build("POST", "https://example.org/", body_stream, headers)
+Finch.build("POST", "https://example.org/", headers, {:stream, body_stream})
 |> Finch.request(MyFinch)
 ```
 
@@ -62,6 +62,6 @@ content_type = Multipart.content_type(multipart, "multipart/form-data")
 
 headers = [{"Content-Type", content_type}, {"Content-Length", content_length}]
 
-Finch.build("POST", "https://example.org/", body_stream, headers)
+Finch.build("POST", "https://example.org/", headers, {:stream, body_stream})
 |> Finch.request(MyFinch)
 ```

@@ -1,11 +1,19 @@
 # Multipart
 
+[![Hex pm](http://img.shields.io/hexpm/v/multipart.svg?style=flat)](https://hex.pm/packages/multipart)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/multipart/)
+
 Constructs a multipart message, such an HTTP form data request or multipart email.
 
 # Features
 
-- follows RFC 2046 and RFC 7578
-- can stream the request body, reducing memory consumption for large request bodies
+- Follows RFC 2046 and RFC 7578
+- Can stream the request body, reducing memory consumption for large request bodies
+
+# Requirements
+
+- Elixir >= 1.9
+- Erlang/OTP >= 21
 
 ## Installation
 

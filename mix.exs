@@ -33,7 +33,7 @@ defmodule Multipart.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :crypto]
+      extra_applications: [:logger, :inets, :ssl]
     ]
   end
 

@@ -77,6 +77,23 @@ defmodule MultipartTest do
     assert content_length == String.length(expected_output)
   end
 
+  test "building a message preserves original line breaks" do
+    multipart =
+      Multipart.new(@boundary)
+      |> Multipart.add_part(Part.file_field(file_path("files/test-crlf.txt"), "text"))
+
+    output = Multipart.body_binary(multipart)
+
+    header =
+      "\r\n--#{@boundary}\r\ncontent-type: text/plain\r\ncontent-disposition: form-data; name=\"text\"; filename=\"test-crlf.txt\"\r\n\r\n"
+
+    body = File.read!(file_path("files/test-crlf.txt"))
+    footer = "\r\n--#{@boundary}--\r\n"
+
+    expected_output = header <> body <> footer
+    assert output == expected_output
+  end
+
   defp file_path(path) do
     Path.join(__DIR__, path)
   end

@@ -111,7 +111,7 @@ defmodule Multipart.Part do
     header = {"content-disposition", content_disposition("form-data", name: name)}
 
     headers
-    |> Enum.concat(header)
+    |> Enum.concat([header])
   end
 
   def add_content_disposition_header(headers, name, filename, path) do

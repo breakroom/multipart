@@ -110,7 +110,7 @@ defmodule Multipart do
   end
 
   @doc """
-  Compute the length of a string in octets as per https://httpwg.org/specs/rfc7230.html#header.content-length
+  Helper function to compute the length of a string in octets.
   """
   @spec octet_length(String.t()) :: pos_integer()
   def octet_length(str) do

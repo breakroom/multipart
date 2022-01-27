@@ -169,5 +169,4 @@ defmodule Multipart do
 
     "==#{token}=="
   end
-
 end

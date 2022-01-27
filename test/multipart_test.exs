@@ -102,5 +102,4 @@ defmodule MultipartTest do
   defp file_path(path) do
     Path.join(__DIR__, path)
   end
-
 end

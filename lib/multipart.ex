@@ -93,7 +93,7 @@ defmodule Multipart do
     final_delimiter_length =
       final_delimiter(boundary)
       |> Enum.join("")
-      |> String.length()
+      |> octet_length()
 
     parts
     |> Enum.with_index()
@@ -109,6 +109,14 @@ defmodule Multipart do
     |> Kernel.+(final_delimiter_length)
   end
 
+  @doc """
+  Compute the length of a string in octets as per https://httpwg.org/specs/rfc7230.html#header.content-length
+  """
+  @spec octet_length(String.t()) :: pos_integer()
+  def octet_length(str) do
+    length(String.codepoints(str))
+  end
+
   defp part_stream(%Part{} = part, boundary) do
     Stream.concat([part_delimiter(boundary), part_headers(part), part_body_stream(part)])
   end
@@ -117,7 +125,7 @@ defmodule Multipart do
     if is_integer(content_length) do
       Enum.concat(part_delimiter(boundary), part_headers(part))
       |> Enum.reduce(0, fn str, acc ->
-        String.length(str) + acc
+        octet_length(str) + acc
       end)
       |> Kernel.+(content_length)
     else
@@ -161,4 +169,5 @@ defmodule Multipart do
 
     "==#{token}=="
   end
+
 end

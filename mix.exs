@@ -7,7 +7,7 @@ defmodule Multipart.MixProject do
     [
       app: :multipart,
       version: @version,
-      elixir: "~> 1.9",
+      elixir: "~> 1.10",
       name: "Multipart",
       source_url: "https://github.com/breakroom/multipart",
       description: "Multipart message generator",

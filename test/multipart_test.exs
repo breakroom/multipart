@@ -19,7 +19,7 @@ defmodule MultipartTest do
     assert output == expected_output
 
     content_length = Multipart.content_length(multipart)
-    assert content_length == String.length(expected_output)
+    assert content_length == byte_size(expected_output)
   end
 
   test "building a message of file parts" do
@@ -34,7 +34,7 @@ defmodule MultipartTest do
     assert output == expected_output
 
     content_length = Multipart.content_length(multipart)
-    assert content_length == String.length(expected_output)
+    assert content_length == byte_size(expected_output)
   end
 
   test "building a message of text form-data parts" do
@@ -49,7 +49,7 @@ defmodule MultipartTest do
     assert output == expected_output
 
     content_length = Multipart.content_length(multipart)
-    assert content_length == String.length(expected_output)
+    assert content_length == byte_size(expected_output)
   end
 
   test "building a message of file form-data parts" do
@@ -74,7 +74,7 @@ defmodule MultipartTest do
     assert output == expected_output
 
     content_length = Multipart.content_length(multipart)
-    assert content_length == String.length(expected_output)
+    assert content_length == byte_size(expected_output)
   end
 
   test "building a message preserves original line breaks" do

@@ -93,7 +93,7 @@ defmodule Multipart do
     final_delimiter_length =
       final_delimiter(boundary)
       |> Enum.join("")
-      |> String.length()
+      |> byte_size()
 
     parts
     |> Enum.with_index()
@@ -117,7 +117,7 @@ defmodule Multipart do
     if is_integer(content_length) do
       Enum.concat(part_delimiter(boundary), part_headers(part))
       |> Enum.reduce(0, fn str, acc ->
-        String.length(str) + acc
+        byte_size(str) + acc
       end)
       |> Kernel.+(content_length)
     else

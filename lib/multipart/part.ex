@@ -57,7 +57,7 @@ defmodule Multipart.Part do
   """
   @spec text_field(binary(), name(), headers()) :: t()
   def text_field(body, name, headers \\ []) do
-    headers = headers ++ [{"content-disposition", content_disposition("form-data", name: name)}]
+    headers = add_content_disposition_header(headers, name)
     binary_body(body, headers)
   end
 
@@ -107,14 +107,14 @@ defmodule Multipart.Part do
     |> Enum.join("; ")
   end
 
-  def add_content_disposition_header(headers, name) do
+  defp add_content_disposition_header(headers, name) do
     header = {"content-disposition", content_disposition("form-data", name: name)}
 
     headers
-    |> Enum.concat(header)
+    |> Enum.concat([header])
   end
 
-  def add_content_disposition_header(headers, name, filename, path) do
+  defp add_content_disposition_header(headers, name, filename, path) do
     content_disposition_opts = [name: name] |> maybe_add_filename_directive(filename, path)
 
     header = {"content-disposition", content_disposition("form-data", content_disposition_opts)}

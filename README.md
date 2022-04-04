@@ -12,7 +12,7 @@ Constructs a multipart message, such an HTTP form data request or multipart emai
 
 # Requirements
 
-- Elixir >= 1.9
+- Elixir >= 1.10
 - Erlang/OTP >= 21
 
 ## Installation

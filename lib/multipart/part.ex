@@ -22,7 +22,7 @@ defmodule Multipart.Part do
   """
   @spec binary_body(binary(), headers()) :: t()
   def binary_body(body, headers \\ []) when is_binary(body) do
-    content_length = String.length(body)
+    content_length = byte_size(body)
     %__MODULE__{body: body, content_length: content_length, headers: headers}
   end
 

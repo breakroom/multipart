@@ -57,7 +57,7 @@ defmodule Multipart.Part do
   """
   @spec text_field(binary(), name(), headers()) :: t()
   def text_field(body, name, headers \\ []) do
-    headers = add_content_disposition_header(headers, name)
+    headers = maybe_add_content_disposition_header(headers, name)
     binary_body(body, headers)
   end
 
@@ -94,7 +94,7 @@ defmodule Multipart.Part do
   """
   @spec stream_field(Enum.t(), name(), headers()) :: t()
   def stream_field(stream, name, headers \\ []) do
-    headers = headers |> add_content_disposition_header(name)
+    headers = headers |> maybe_add_content_disposition_header(name)
     stream_body(stream, headers)
   end
 
@@ -107,11 +107,14 @@ defmodule Multipart.Part do
     |> Enum.join("; ")
   end
 
-  defp add_content_disposition_header(headers, name) do
-    header = {"content-disposition", content_disposition("form-data", name: name)}
-
-    headers
-    |> Enum.concat([header])
+  defp maybe_add_content_disposition_header(headers, name) do
+    unless headers
+           |> Enum.map(fn {k, _} -> String.downcase(k) end)
+           |> Enum.member?("content-disposition") do
+      [{"content-disposition", content_disposition("form-data", name: name)} | headers]
+    else
+      headers
+    end
   end
 
   defp add_content_disposition_header(headers, name, filename, path) do

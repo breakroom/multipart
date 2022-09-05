@@ -1,3 +1,7 @@
+# 0.3.1
+
+- Fix issue overriding `Content-Disposition` header which would create multiple headers (thanks @awea!)
+
 # 0.3.0
 
 - Generate `Content-Length` length correctly, by using bytes, not graphemes

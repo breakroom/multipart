@@ -89,6 +89,18 @@ defmodule Multipart.Part do
     file_body(path, headers)
   end
 
+  def file_content_field(path, content, name, headers \\ [], opts \\ []) do
+    filename = Keyword.get(opts, :filename, true)
+    content_type = Keyword.get(opts, :content_type, true)
+
+    headers =
+      headers
+      |> maybe_add_content_type_header(content_type, path)
+      |> add_content_disposition_header(name, filename, path)
+
+    binary_body(content, headers)
+  end
+
   @doc """
   Builds a form-data `Part` with a streaming body.
   """

@@ -20,6 +20,8 @@ defmodule MultipartTest do
 
     content_length = Multipart.content_length(multipart)
     assert content_length == byte_size(expected_output)
+
+    assert {:ok, ^multipart} = Multipart.decode(@boundary, output)
   end
 
   test "building a message of file parts" do
@@ -50,6 +52,8 @@ defmodule MultipartTest do
 
     content_length = Multipart.content_length(multipart)
     assert content_length == byte_size(expected_output)
+
+    assert {:ok, ^multipart} = Multipart.decode(@boundary, output)
   end
 
   test "building a message of file form-data parts" do
@@ -105,6 +109,8 @@ defmodule MultipartTest do
 
     content_length = Multipart.content_length(multipart)
     assert content_length == byte_size(expected_output)
+
+    assert {:ok, ^multipart} = Multipart.decode(@boundary, output)
   end
 
   test "building a message preserves original line breaks" do

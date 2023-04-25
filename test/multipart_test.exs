@@ -85,7 +85,9 @@ defmodule MultipartTest do
 
     multipart =
       Multipart.new(@boundary)
-      |> Multipart.add_part(Part.file_content_field(file_path("files/test.json"), content_json, "attachment"))
+      |> Multipart.add_part(
+        Part.file_content_field(file_path("files/test.json"), content_json, "attachment")
+      )
       |> Multipart.add_part(
         Part.file_content_field(file_path("files/test.txt"), content_text, "attachment_2", [],
           filename: "attachment.txt"

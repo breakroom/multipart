@@ -77,6 +77,34 @@ defmodule MultipartTest do
     assert content_length == byte_size(expected_output)
   end
 
+  test "building a message of file content form-data parts" do
+    expected_output = File.read!(file_path("outputs/file_form_data_parts_message.txt"))
+
+    content_json = File.read!(file_path("files/test.json"))
+    content_text = File.read!(file_path("files/test.txt"))
+
+    multipart =
+      Multipart.new(@boundary)
+      |> Multipart.add_part(Part.file_content_field(file_path("files/test.json"), content_json, "attachment"))
+      |> Multipart.add_part(
+        Part.file_content_field(file_path("files/test.txt"), content_text, "attachment_2", [],
+          filename: "attachment.txt"
+        )
+      )
+      |> Multipart.add_part(
+        Part.file_content_field(file_path("files/test.txt"), content_text, "attachment_3", [],
+          content_type: "application/octet-stream",
+          filename: false
+        )
+      )
+
+    output = Multipart.body_binary(multipart)
+    assert output == expected_output
+
+    content_length = Multipart.content_length(multipart)
+    assert content_length == byte_size(expected_output)
+  end
+
   test "building a message preserves original line breaks" do
     multipart =
       Multipart.new(@boundary)

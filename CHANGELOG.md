@@ -1,3 +1,7 @@
+# 0.4.0
+
+- Add `Part.file_content_field` to support in-memory file content (thanks @restlessronin!)
+
 # 0.3.1
 
 - Fix issue overriding `Content-Disposition` header which would create multiple headers (thanks @awea!)

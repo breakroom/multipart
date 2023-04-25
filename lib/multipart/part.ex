@@ -89,6 +89,21 @@ defmodule Multipart.Part do
     file_body(path, headers)
   end
 
+  @doc """
+  Builds a form-data `Part` with an in-memory file body.
+
+  Takes the following `Keyword` options in `opts`:
+
+  * `filename`: controls the inclusion of the `filename="foo"` directive in the
+    `content-disposition` header. Defaults to `true`, which uses the filename
+    from the path on disk. Pass in a `String` to override this, or set to
+    `false` to disable this directive.
+
+  * `content_type`: controls the inclusion of the `content-type` header.
+    Defaults to `true` which will use `MIME.from_path/1` to detect the mime
+    type of the file. Pass in a `String` to override this, or set to `false`
+    to disable this header.
+  """
   def file_content_field(path, content, name, headers \\ [], opts \\ []) do
     filename = Keyword.get(opts, :filename, true)
     content_type = Keyword.get(opts, :content_type, true)

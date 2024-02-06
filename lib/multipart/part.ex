@@ -35,7 +35,7 @@ defmodule Multipart.Part do
   @spec file_body(String.t(), headers()) :: t()
   def file_body(path, headers \\ []) do
     %File.Stat{size: size} = File.stat!(path)
-    file_stream = File.stream!(path, [{:read_ahead, 4096}], 1024)
+    file_stream = File.stream!(path, 1024, [{:read_ahead, 4096}])
 
     %__MODULE__{body: file_stream, content_length: size, headers: headers}
   end

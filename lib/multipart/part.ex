@@ -35,7 +35,7 @@ defmodule Multipart.Part do
   @spec file_body(String.t(), headers()) :: t()
   def file_body(path, headers \\ []) do
     %File.Stat{size: size} = File.stat!(path)
-    file_stream = File.stream!(path, 1024)
+    file_stream = file_stream!(path, 1024)
 
     %__MODULE__{body: file_stream, content_length: size, headers: headers}
   end
@@ -179,5 +179,11 @@ defmodule Multipart.Part do
 
   defp maybe_add_filename_directive(directives, false, _path) do
     directives
+  end
+
+  if Version.compare(System.version(), "1.16.0") in [:gt, :eq] do
+    defp file_stream!(path, bytes), do: File.stream!(path, bytes)
+  else
+    defp file_stream!(path, bytes), do: File.stream!(path, [], bytes)
   end
 end

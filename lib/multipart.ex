@@ -177,15 +177,15 @@ defmodule Multipart do
         {:ok, %__MODULE__{new(boundary) | parts: Enum.reverse(parts)}}
 
       <<@separator, ^boundary::binary-size(boundary_size), @crlf, rest::binary>> ->
-        with {:ok, part, rest} <- decode_part(rest) do
+        with {:ok, part, rest} <- decode_part(rest, boundary) do
           decode_parts(boundary, boundary_size, rest, [part | parts])
         end
     end
   end
 
-  defp decode_part(data) do
+  defp decode_part(data, boundary) do
     with {:ok, headers, rest} <- decode_headers(data, []),
-         {:ok, body, rest} <- decode_body(rest, "") do
+         {:ok, body, rest} <- decode_body(rest, boundary, "") do
       {:ok, %Part{headers: headers, body: body, content_length: byte_size(body)}, rest}
     end
   end
@@ -207,11 +207,18 @@ defmodule Multipart do
 
   defp decode_header(_data, _headers), do: :error
 
-  defp decode_body(<<@crlf, @separator, rest::binary>>, body),
-    do: {:ok, body, @separator <> rest}
+  defp decode_body(rest, boundary, body) do
+    boundary_size = byte_size(boundary)
 
-  defp decode_body(<<data::binary-size(1), rest::binary>>, body),
-    do: decode_body(rest, body <> data)
+    case rest do
+      <<@crlf, @separator, ^boundary::binary-size(boundary_size), rest::binary>> ->
+        {:ok, body, @separator <> boundary <> rest}
 
-  defp decode_body(_data, _body), do: :error
+      <<data::binary-size(1), rest::binary>> ->
+        decode_body(rest, boundary, body <> data)
+
+      _ ->
+        :error
+    end
+  end
 end

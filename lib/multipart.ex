@@ -70,9 +70,17 @@ defmodule Multipart do
       iex> Multipart.content_type(multipart, "multipart/mixed")
       "multipart/mixed; boundary=\\"==abc123==\\""
   """
-  @spec content_type(Multipart.t(), String.t()) :: String.t()
-  def content_type(%__MODULE__{boundary: boundary}, mime_type) do
-    [mime_type, "boundary=\"#{boundary}\""]
+  @spec content_type(Multipart.t(), String.t(), Keyword.t()) :: String.t()
+  def content_type(%__MODULE__{boundary: boundary}, mime_type, opts \\ []) do
+    quote_boundary = opts |> Keyword.get(:quote_boundary, true)
+
+    boundary =
+      case quote_boundary do
+        true -> "\"#{boundary}\""
+        false -> boundary
+      end
+
+    [mime_type, "boundary=#{boundary}"]
     |> Enum.join("; ")
   end
 

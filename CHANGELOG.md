@@ -1,3 +1,8 @@
+# 0.5.0
+
+- Fixed deprecated use of `File.stream!`
+- Bumped minimum Elixir and OTP support to 1.16 and 26, respectively
+
 # 0.4.0
 
 - Add `Part.file_content_field` to support in-memory file content (thanks @restlessronin!)

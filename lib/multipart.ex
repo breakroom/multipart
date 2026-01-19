@@ -8,17 +8,17 @@ defmodule Multipart do
   `multipart/form-data` requests.
   """
 
+  alias Multipart.Part
+
   defstruct boundary: nil, parts: []
 
   @type t :: %__MODULE__{
           boundary: String.t(),
-          parts: list(Multipart.Part.t())
+          parts: list(Part.t())
         }
 
   @crlf "\r\n"
   @separator "--"
-
-  alias Multipart.Part
 
   @doc """
   Create a new `Multipart` request.
@@ -43,7 +43,7 @@ defmodule Multipart do
   @doc """
   Returns a `Stream` of the `Multipart` message body.
   """
-  @spec body_stream(Multipart.t()) :: Enum.t()
+  @spec body_stream(t()) :: Enum.t()
   def body_stream(%__MODULE__{boundary: boundary, parts: parts}) do
     parts
     |> Enum.map(&part_stream(&1, boundary))
@@ -56,7 +56,7 @@ defmodule Multipart do
 
   This uses `body_stream/1` under the hood.
   """
-  @spec body_binary(Multipart.t()) :: binary()
+  @spec body_binary(t()) :: binary()
   def body_binary(%__MODULE__{} = multipart) do
     multipart
     |> body_stream()
@@ -70,7 +70,7 @@ defmodule Multipart do
       iex> Multipart.content_type(multipart, "multipart/mixed")
       "multipart/mixed; boundary=\\"==abc123==\\""
   """
-  @spec content_type(Multipart.t(), String.t()) :: String.t()
+  @spec content_type(t(), String.t()) :: String.t()
   def content_type(%__MODULE__{boundary: boundary}, mime_type) do
     [mime_type, "boundary=\"#{boundary}\""]
     |> Enum.join("; ")
@@ -88,7 +88,7 @@ defmodule Multipart do
   This will throw an error if any of the parts does not have `content_length`
   defined.
   """
-  @spec content_length(Multipart.t()) :: pos_integer()
+  @spec content_length(t()) :: pos_integer()
   def content_length(%__MODULE__{parts: parts, boundary: boundary}) do
     final_delimiter_length =
       final_delimiter(boundary)
@@ -108,6 +108,15 @@ defmodule Multipart do
     end)
     |> Kernel.+(final_delimiter_length)
   end
+
+  @doc """
+  Returns `Multipart` for a binary message body.
+  """
+  @spec decode(String.t(), String.t()) :: {:ok, t()} | :error
+  def decode(boundary, @crlf <> data),
+    do: decode_parts(boundary, byte_size(boundary), data, [])
+
+  def decode(_data), do: :error
 
   defp part_stream(%Part{} = part, boundary) do
     Stream.concat([part_delimiter(boundary), part_headers(part), part_body_stream(part)])
@@ -160,5 +169,56 @@ defmodule Multipart do
       |> Base.encode16(case: :lower)
 
     "==#{token}=="
+  end
+
+  defp decode_parts(boundary, boundary_size, data, parts) do
+    case data do
+      <<@separator, ^boundary::binary-size(boundary_size), @separator, _rest::binary>> ->
+        {:ok, %__MODULE__{new(boundary) | parts: Enum.reverse(parts)}}
+
+      <<@separator, ^boundary::binary-size(boundary_size), @crlf, rest::binary>> ->
+        with {:ok, part, rest} <- decode_part(rest, boundary) do
+          decode_parts(boundary, boundary_size, rest, [part | parts])
+        end
+    end
+  end
+
+  defp decode_part(data, boundary) do
+    with {:ok, headers, rest} <- decode_headers(data, []),
+         {:ok, body, rest} <- decode_body(rest, boundary, "") do
+      {:ok, %Part{headers: headers, body: body, content_length: byte_size(body)}, rest}
+    end
+  end
+
+  defp decode_headers(<<@crlf, rest::binary>>, headers),
+    do: {:ok, Enum.reverse(headers), rest}
+
+  defp decode_headers(data, headers) do
+    with {:ok, header, rest} <- decode_header(data, "") do
+      decode_headers(rest, [header | headers])
+    end
+  end
+
+  defp decode_header(<<@crlf, rest::binary>>, header),
+    do: {:ok, String.split(header, ": ", parts: 2) |> List.to_tuple(), rest}
+
+  defp decode_header(<<data::binary-size(1), rest::binary>>, header),
+    do: decode_header(rest, header <> data)
+
+  defp decode_header(_data, _headers), do: :error
+
+  defp decode_body(rest, boundary, body) do
+    boundary_size = byte_size(boundary)
+
+    case rest do
+      <<@crlf, @separator, ^boundary::binary-size(boundary_size), rest::binary>> ->
+        {:ok, body, @separator <> boundary <> rest}
+
+      <<data::binary-size(1), rest::binary>> ->
+        decode_body(rest, boundary, body <> data)
+
+      _ ->
+        :error
+    end
   end
 end

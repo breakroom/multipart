@@ -1,3 +1,7 @@
+# 0.6.0
+
+- Added ability to disable boundary quoting in content-type header (thanks @nallwhy!)
+
 # 0.5.0
 
 - Fixed deprecated use of `File.stream!`

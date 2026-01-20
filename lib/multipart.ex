@@ -76,7 +76,7 @@ defmodule Multipart do
   """
   @spec content_type(Multipart.t(), String.t(), Keyword.t()) :: String.t()
   def content_type(%__MODULE__{boundary: boundary}, mime_type, opts \\ []) do
-    quote_boundary = opts |> Keyword.get(:quote_boundary, true)
+    quote_boundary = Keyword.get(opts, :quote_boundary, true)
 
     boundary =
       case quote_boundary do

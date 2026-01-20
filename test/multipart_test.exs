@@ -124,6 +124,23 @@ defmodule MultipartTest do
     assert output == expected_output
   end
 
+  describe "content_type/3" do
+    test "returns Content-Type header with quoted boundary by default" do
+      multipart = Multipart.new("myboundary")
+      content_type = Multipart.content_type(multipart, "multipart/form-data")
+      assert content_type == "multipart/form-data; boundary=\"myboundary\""
+    end
+
+    test "returns Content-Type header with unquoted boundary when specified" do
+      multipart = Multipart.new("myboundary")
+
+      content_type =
+        Multipart.content_type(multipart, "multipart/form-data", quote_boundary: false)
+
+      assert content_type == "multipart/form-data; boundary=myboundary"
+    end
+  end
+
   defp file_path(path) do
     Path.join(__DIR__, path)
   end

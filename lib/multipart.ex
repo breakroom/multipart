@@ -66,13 +66,25 @@ defmodule Multipart do
   @doc """
   Returns the Content-Type header for the `Multipart` message.
 
-      iex> multipart = Multipart.new("==abc123==")
+  Pass in `Keyword` option `:quote_boundary` set `false` to disable quoting the boundary.
+
+      iex> multipart = Multipart.new("abc123")
       iex> Multipart.content_type(multipart, "multipart/mixed")
-      "multipart/mixed; boundary=\\"==abc123==\\""
+      "multipart/mixed; boundary=\\"abc123\\""
+      iex> Multipart.content_type(multipart, "multipart/mixed", quote_boundary: false)
+      "multipart/mixed; boundary=abc123"
   """
-  @spec content_type(Multipart.t(), String.t()) :: String.t()
-  def content_type(%__MODULE__{boundary: boundary}, mime_type) do
-    [mime_type, "boundary=\"#{boundary}\""]
+  @spec content_type(Multipart.t(), String.t(), Keyword.t()) :: String.t()
+  def content_type(%__MODULE__{boundary: boundary}, mime_type, opts \\ []) do
+    quote_boundary = Keyword.get(opts, :quote_boundary, true)
+
+    boundary =
+      case quote_boundary do
+        true -> "\"#{boundary}\""
+        false -> boundary
+      end
+
+    [mime_type, "boundary=#{boundary}"]
     |> Enum.join("; ")
   end
 

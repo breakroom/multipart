@@ -17,6 +17,7 @@ defmodule Multipart do
 
   @crlf "\r\n"
   @separator "--"
+  @boundary_regex ~r/\A[0-9A-Za-z'()+_,\-.\/:=?]{1,70}\z/
 
   alias Multipart.Part
 
@@ -26,10 +27,26 @@ defmodule Multipart do
   Pass in the boundary as the first argument to set it explicitly, otherwise
   it will default to a random 16 character alphanumeric string padded by `==`
   on either side.
+
+  The boundary must conform to the RFC 2046 boundary grammar (1-70 of the
+  allowed `bcharsnospace` characters); anything else raises `ArgumentError`.
+  The default boundary is a 128-bit random token, so it is safe against a part
+  body that happens to contain the boundary. If you supply a custom boundary
+  you are responsible for ensuring it cannot appear in any part body.
   """
   @spec new(String.t()) :: t()
   def new(boundary \\ generate_boundary()) do
+    validate_boundary!(boundary)
     %__MODULE__{boundary: boundary}
+  end
+
+  # RFC 2046 boundary grammar: 1*70 bcharsnospace. Rejecting anything outside
+  # this charset prevents CRLF/quote injection into the body delimiters and the
+  # `content_type/3` header.
+  defp validate_boundary!(boundary) do
+    unless is_binary(boundary) and Regex.match?(@boundary_regex, boundary) do
+      raise ArgumentError, "invalid multipart boundary: #{inspect(boundary)}"
+    end
   end
 
   @doc """
@@ -148,9 +165,16 @@ defmodule Multipart do
   defp part_headers(%Part{headers: headers}) do
     headers
     |> Enum.flat_map(fn {k, v} ->
+      validate_header!(k, v)
       ["#{k}: #{v}", @crlf]
     end)
     |> List.insert_at(-1, @crlf)
+  end
+
+  defp validate_header!(k, v) do
+    if String.contains?("#{k}", ["\r", "\n"]) or String.contains?("#{v}", ["\r", "\n"]) do
+      raise ArgumentError, "header name/value contains CR/LF: #{inspect({k, v})}"
+    end
   end
 
   defp part_body_stream(%Part{body: body}) when is_binary(body) do

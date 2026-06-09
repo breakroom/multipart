@@ -1,3 +1,7 @@
+# 0.6.1
+
+- Add validation of user supplied data to ensure malicious multipart messages cannot be generated
+
 # 0.6.0
 
 - Added ability to disable boundary quoting in content-type header (thanks @nallwhy!)

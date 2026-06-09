@@ -128,10 +128,24 @@ defmodule Multipart.Part do
   defp content_disposition(type, directives) do
     directives
     |> Enum.map(fn {k, v} ->
-      "#{k}=\"#{v}\""
+      "#{k}=\"#{escape_directive_value(v)}\""
     end)
     |> List.insert_at(0, type)
     |> Enum.join("; ")
+  end
+
+  # Percent-encode the characters that would otherwise let a directive value
+  # break out of its quotes or inject a new header (RFC 7578 §5.1, matching
+  # WHATWG/browser behaviour). The backslash is also encoded because RFC
+  # 2045/2183 (MIME/email) quoted-string parsers treat `\"` as an escaped
+  # quote, so a trailing backslash could otherwise escape the closing quote.
+  defp escape_directive_value(value) do
+    value
+    |> to_string()
+    |> String.replace("\\", "%5C")
+    |> String.replace("\r", "%0D")
+    |> String.replace("\n", "%0A")
+    |> String.replace("\"", "%22")
   end
 
   defp maybe_add_content_disposition_header(headers, name) do
